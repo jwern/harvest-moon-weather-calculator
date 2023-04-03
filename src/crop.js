@@ -22,7 +22,7 @@ class Crop {
   constructor(veggieObject) {
     // If we're instantiating with an existing veggieObject,
     // set starting values equal to the object's values
-    this._totalDays = veggieObject._totalDays || 0;
+    this._totalDays = veggieObject._totalDays || 1;
     this._totalWater = veggieObject._totalWater || 0;
     this._totalSun = veggieObject._totalSun || 0;
     this._ages = [
@@ -53,6 +53,13 @@ class Crop {
     return this._ages[this._currentAge];
   }
 
+  set age(newAge) {
+    if (newAge === '') {
+        throw 'Val cannot be empty';
+    }
+    this._currentAge = newAge;
+  }
+
   get id() {
     return this._id;
   }
@@ -61,12 +68,39 @@ class Crop {
     return this._regrow;
   }
 
+  get stages() {
+    const stages = [];
+    this._ages.forEach((age, i) => stages[i] = age.stage);
+    return stages;
+  }
+
   get water() {
     return this._totalWater;
   }
 
+  set water(newWater) {
+    if (newWater === '') {
+        throw 'Val cannot be empty';
+    }
+    this._totalWater = newWater;
+  }
+
   get sun() {
     return this._totalSun;
+  }
+
+  set sun(newSun) {
+    if (newSun === '') {
+        throw 'Val cannot be empty';
+    }
+    this._totalSun = newSun;
+  }
+
+  set days(newDays) {
+    if (newDays === '') {
+        throw 'Val cannot be empty';
+    }
+    this._totalDays = newDays;
   }
 
   get waterNeeded() {
@@ -117,11 +151,12 @@ class Crop {
       this._totalSun,
     ];
 
+    this.checkStatus();
+
     this.increaseDays();
     this.increaseSun(weather.sun);
     this.increaseWater(weather.water);
 
-    this.checkStatus();
   }
 
   resetTotals() {
@@ -136,6 +171,12 @@ class Crop {
       let regrowStage = this._ages.find((age) => age.stage === this._regrow);
       let regrowIndex = this._ages.indexOf(regrowStage);
       this._currentAge = regrowIndex;
+      this.resetTotals();
+      this.increaseDays();
+      let localWeather = JSON.parse(localStorage.getItem("localLastWeatherPressed"));
+      this.increaseSun(localWeather.sun);
+      this.increaseWater(localWeather.water);
+
     }
   }
 
